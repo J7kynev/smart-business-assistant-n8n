@@ -1,0 +1,156 @@
+{
+  "name": "01_knowledge_ingestion",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -288,
+        128
+      ],
+      "id": "3e07fbf0-45ea-41a7-9af9-c942dcef8e68",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ffd469f8-575d-4d27-85df-a82036bef58c",
+              "name": "text",
+              "value": "Nuestro horario de atención es de lunes a viernes de 9am a 6pm. Los sábados atendemos de 10am a 2pm. Los domingos no hay atención.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -96,
+        128
+      ],
+      "id": "674c3a6b-f978-465c-a7ef-1204c1fc66bd",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "business-assistant",
+          "mode": "list",
+          "cachedResultName": "business-assistant"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        96,
+        128
+      ],
+      "id": "c533325e-8e8d-42f5-b2e9-8cdeb6b790f6",
+      "name": "Pinecone Vector Store",
+      "credentials": {
+        "pineconeApi": {
+          "id": "OD3pB433TJNIBjIb",
+          "name": "Pinecone account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -16,
+        336
+      ],
+      "id": "5b1344c5-213d-4bef-a688-f198473b2743",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "c1506FeJ8mt7RQMI",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        336
+      ],
+      "id": "1ee8be3b-a650-41c9-8716-6a6ae067be10",
+      "name": "Default Data Loader"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "65ca32e3-8dfc-49d7-94c8-924f3e836794",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c30ddc6bf453273f4d5f29828fb98262a19ac3941ec7092317bdf7eca46e2bc3"
+  },
+  "id": "eAiSb2xDCBZpyS7P",
+  "tags": []
+}

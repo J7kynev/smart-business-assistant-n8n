@@ -1,0 +1,76 @@
+{
+  "name": "03_weekly_report",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "f7610fe7-f1ff-4dae-900a-a42b60ebf9ad",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "chatId": "6897290027",
+        "text": "=📊 Reporte Semanal - Business Assistant  🤖 El agente está funcionando correctamente. 📅 Semana: {{ $now.toFormat('dd/MM/yyyy') }}  ✅ Sistema operativo y listo para responder consultas.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "08a32af7-7621-4927-b1f7-67e0668f24dc",
+      "name": "Send a text message",
+      "webhookId": "6ae2d6eb-1608-4f38-a9e6-01670a0cf8c4",
+      "credentials": {
+        "telegramApi": {
+          "id": "wb4BzHIV1lOQddzC",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "61b6b229-5386-43a7-b09f-a3e1207e2d78",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c30ddc6bf453273f4d5f29828fb98262a19ac3941ec7092317bdf7eca46e2bc3"
+  },
+  "id": "zphiXudhsFItvUx6",
+  "tags": []
+}
