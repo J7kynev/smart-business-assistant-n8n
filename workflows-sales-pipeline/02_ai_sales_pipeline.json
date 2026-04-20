@@ -1,0 +1,271 @@
+{
+  "name": "02_ai_sales_pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "leads",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "d76ec6b0-bcd3-473f-913c-179b19a2f1f4",
+      "name": "Webhook",
+      "webhookId": "1e15ec7f-baf5-48ba-b67b-4dfd1d58ab5e"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.hunter.io/v2/email-finder?domain={{$json.body.empresa}}&first_name={{$json.body.nombre}}&api_key=92648d1f6794be4330768fc0483e759dacfe7cc5",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "67e93e50-d31c-4e1f-9063-46adf9dadd89",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=Eres un experto en ventas B2B. Analiza este lead y devuelve SOLO un JSON con este formato exacto:\n{\n  \"score\": (número del 1 al 10),\n  \"estado\": (\"Caliente\" si score >= 7, \"Tibio\" si score >= 4, \"Frío\" si score < 4),\n  \"notas\": \"(razón breve del score)\"\n}\n\nDatos del lead:\nNombre: {{$('Webhook').item.json.body.nombre}}\nEmpresa: {{$('Webhook').item.json.body.empresa}}\nIndustria: {{$('Webhook').item.json.body.industria}}\nMensaje: {{$('Webhook').item.json.body.mensaje}}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        416,
+        0
+      ],
+      "id": "95569734-ebad-4db4-9c48-fd86923de3fc",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "c1506FeJ8mt7RQMI",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "5e1981b1-eb0c-41b4-abbb-40a7947f9436",
+              "leftValue": "={{$json.message.content}}",
+              "rightValue": "Caliente",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        672,
+        0
+      ],
+      "id": "24e2c1b8-d506-4359-b55d-f195eaa9e8d0",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "chatId": "6897290027",
+        "text": "=🔥 LEAD CALIENTE DETECTADO\n\nNombre: {{$('Webhook').item.json.body.nombre}}\nEmpresa: {{$('Webhook').item.json.body.empresa}}\nIndustria: {{$('Webhook').item.json.body.industria}}\nMensaje: {{$('Webhook').item.json.body.mensaje}}\n\nAnálisis IA: {{$('OpenAI').item.json.message.content}}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        880,
+        -96
+      ],
+      "id": "bd5b172f-f345-4306-b71a-1e1818e439ad",
+      "name": "Send a text message",
+      "webhookId": "9424c743-f5a0-4072-be8a-ac9f1a16e2a9",
+      "credentials": {
+        "telegramApi": {
+          "id": "wb4BzHIV1lOQddzC",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6897290027",
+        "text": "=📋 LEAD PARA NURTURING  Nombre: {{$('Webhook').item.json.body.nombre}} Empresa: {{$('Webhook').item.json.body.empresa}} Industria: {{$('Webhook').item.json.body.industria}} Mensaje: {{$('Webhook').item.json.body.mensaje}}  Análisis IA: {{$('OpenAI').item.json.message.content}}  👉 Este lead requiere seguimiento gradual.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        880,
+        96
+      ],
+      "id": "5520086b-2054-4dc8-9ef2-464c22a2d50a",
+      "name": "Send a text message1",
+      "webhookId": "f4310ce7-3fc7-4b4e-973f-f95dc8c45153",
+      "credentials": {
+        "telegramApi": {
+          "id": "wb4BzHIV1lOQddzC",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appQ6uI1BZiEA62Dx",
+          "mode": "id"
+        },
+        "table": {
+          "__rl": true,
+          "value": "Leads",
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        1088,
+        0
+      ],
+      "id": "b10cb3e4-be17-4226-94c4-0a3731b2ed58",
+      "name": "Create a record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "OEcnPMgDweRJBEIG",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        [
+          {
+            "node": "Create a record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message1": {
+      "main": [
+        [
+          {
+            "node": "Create a record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "eef1e122-320d-48cf-9a71-585c33ed4f6e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c30ddc6bf453273f4d5f29828fb98262a19ac3941ec7092317bdf7eca46e2bc3"
+  },
+  "id": "Op6mMivOVZI8KdiO",
+  "tags": []
+}
